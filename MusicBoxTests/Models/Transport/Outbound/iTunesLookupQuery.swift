@@ -26,12 +26,12 @@ struct iTunesLookupQueryTests {
             comparator.host   = "itunes.apple.com"
             comparator.path   = "/lookup"
             comparator.queryItems = [
-                URLQueryItem(name: "id",     value: idsString.coalesced(separator: ",")),
+                URLQueryItem(name: "id",     value: idsString.joined(separator: ",")),
                 URLQueryItem(name: "limit",    value: String(limit))
             ]
         
         #expect(finalizedURL == comparator.url!)
-        #expect(finalizedURL == URL(string: "https://itunes.apple.com/lookup?id=\(idsString.coalesced(separator: ","))&limit=\(limit)")!)
+        #expect(finalizedURL == URL(string: "https://itunes.apple.com/lookup?id=\(idsString.joined(separator: ","))&limit=\(limit)")!)
     }
     
 }

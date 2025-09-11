@@ -9,11 +9,11 @@ struct iTunesResponseTests {
     
     @Test("Responses are successfully parsed") 
     func testAbleToParseReponses() async throws {
-        let query = iTunesSearchQuery(term: "beatles", media: .all)
+        let query = iTunesSearchQuery(term: "beatles", media: .all, limit: 200)
         let (data, _) = try await URLSession.shared.data(from: query.finalizedURL())
         
         let response = try JSONDecoder().decode(iTunesResponse.self, from: data)
-        #expect(response.resultCount >= 50)
+        #expect(response.resultCount == response.results.count)
     }
     
     
@@ -29,7 +29,7 @@ struct iTunesResponseTests {
     
     @Test("Parsed response's results are correctly parsed into iTunesArtistResponse type")
     func testParseResponseIntoArtistResponse() async throws {
-        let query = iTunesLookupQuery(ids: [1441164426])
+        let query = iTunesLookupQuery(ids: [136975])
         let (data, _) = try await URLSession.shared.data(from: query.finalizedURL())
         
         let response = try JSONDecoder().decode(iTunesResponse.self, from: data)
