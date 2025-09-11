@@ -1,0 +1,48 @@
+# .swiftlint.yml
+
+reporter: "xcode"
+
+included:
+  - MusicBox
+  - MusicBoxTest
+
+excluded:
+  - MusicBox/Generated
+
+disabled_rules:
+  - line_length
+  - trailing_whitespace
+  - trailing_newline
+  - void_return
+  - closure_parameter_position
+  - todo
+  - type_name
+
+opt_in_rules:
+  - private_outlet
+
+function_parameter_count:
+    warning: 4
+    error: 6
+
+file_length:
+    warning: 500
+    error: 800
+    ignore_comment_only_lines: true
+
+vertical_whitespace:
+    max_empty_lines: 3
+
+large_tuple:
+    warning: 4
+    error: 5
+
+private_outlet:
+    allow_private_set: true
+
+custom_rules:
+  comments_space:
+    name: "Space After Comment"
+    regex: '(^ *//\w+)'
+    message: "There should be a space after //"
+    severity: warning
