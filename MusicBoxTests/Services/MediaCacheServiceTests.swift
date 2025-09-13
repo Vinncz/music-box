@@ -8,6 +8,12 @@ import Testing
 struct MediaCacheServiceTests {
     
     
+    /**
+     IMPORTANT
+     
+     Run the cases individually due to the static nature of KTV.
+     */
+    
     @Test("Service is able to start. DISABLE `wakeServices` on `MusicBoxApp.swift` to pass.")
     func testStartup() async throws {
         let mediaCacheService = MediaCacheKTVHTTPCacheService()
