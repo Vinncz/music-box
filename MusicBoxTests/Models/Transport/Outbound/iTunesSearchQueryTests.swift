@@ -47,7 +47,7 @@ struct iTunesSearchQueryTests {
     @Test("Arguments default to what are shown here") 
     func testExpectedDefaults() async throws {
         let term = "beatles"
-        let country = Constants.region
+        let country = Constants.REGION
         let media: iTunesMedia = .music
         let entity: iTunesEntity = .song
         let limit: Int = 50
