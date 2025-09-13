@@ -15,9 +15,9 @@ extension String {
     /// Never sanitize an already percent-encoded strings.
     var sanitizedForURL: String {
         var allowed = CharacterSet.urlQueryAllowed
-            allowed.remove(charactersIn: "?&+/=")
+            allowed.remove(charactersIn: "?&/=")
         
-        return addingPercentEncoding(withAllowedCharacters: allowed)!
+        return replacing(" ", with: "+")
     }
     
 }

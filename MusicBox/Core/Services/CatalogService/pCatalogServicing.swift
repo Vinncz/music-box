@@ -3,7 +3,7 @@ import Foundation
 
 
 /// Interface that controls the facade to the iTunes API.
-protocol CatalogServicing {
+protocol CatalogServicing: Sendable {
     
     
     /// Performs a lookup with the given ids using ``iTunesLookupQuery``.

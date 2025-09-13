@@ -4,7 +4,7 @@ import SwiftData
 
 
 /// Represents a playable song from iTunes.
-@Model class iTunesSong: Identifiable, Equatable {
+struct iTunesSong: Hashable, Equatable, Identifiable {
     
     
     /// iTunes' identifier for this song.
@@ -21,6 +21,17 @@ import SwiftData
     
     /// Whether this track is streamable.
     var isStreamable: Bool
+    
+    
+    
+    // MARK: -- Additional Information
+    
+    /// The name of the artist.
+    var artistName: String
+    
+    
+    /// The name of the larger collection this song is a part of.
+    var collectionName: String?
     
     
     
@@ -71,13 +82,16 @@ import SwiftData
     /// Use the accesible ``init(from:)`` instead to convert data-layer object into domain ones.
     private init(id: Int, title: String, releaseDate: Date, 
                  isStreamable: Bool, explicitness: iTunesExplicitness, 
-                 censoredTitle: String, artworkUrl60: URL? = nil, 
-                 artworkUrl100: URL? = nil, trackViewUrl: URL, 
+                 artistName: String, collectionName: String?,
+                 censoredTitle: String, artworkUrl60: URL?, 
+                 artworkUrl100: URL?, trackViewUrl: URL, 
                  previewUrl: URL, runtime: Int) {
         self.id = id
         self.title = title
         self.releaseDate = releaseDate
         self.isStreamable = isStreamable
+        self.artistName = artistName
+        self.collectionName = collectionName
         self.explicitness = explicitness
         self.censoredTitle = censoredTitle
         self.artworkUrl60 = artworkUrl60
@@ -132,7 +146,7 @@ extension iTunesSong {
 extension iTunesSong {
     
     
-    convenience init?(from dto: iTunesTrackResponse) {
+    init?(from dto: iTunesTrackResponse) {
         guard dto.wrapperType == .track
            && dto.kind == .song
         else { return nil }
@@ -148,7 +162,9 @@ extension iTunesSong {
             title: dto.trackName,
             releaseDate: dtoReleaseDate,
             isStreamable: dtoIsStreamable,
-            explicitness: dto.trackExplicitness,
+            explicitness: dto.trackExplicitness, 
+            artistName: dto.artistName,
+            collectionName: dto.collectionName,
             censoredTitle: dto.trackCensoredName,
             artworkUrl60: dto.artworkUrl60,
             artworkUrl100: dto.artworkUrl100,
@@ -167,12 +183,14 @@ extension iTunesSong {
     
     
     /// Verified information from the iTunes store.
-    nonisolated(unsafe) static let beatlesYellowSubmarine = iTunesSong(
+    static let beatlesYellowSubmarine = iTunesSong(
         id: 1440833902, 
         title: "Yellow Submarine", 
         releaseDate: try! Date("1966-08-05T12:00:00Z", strategy: .iso8601), 
         isStreamable: true, 
         explicitness: .notExplicit, 
+        artistName: "The Beatles",
+        collectionName: "1",
         censoredTitle: "Yellow Submarine", 
         artworkUrl60: URL(string: "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f2/98/fb/f298fb48-1e0e-6ad4-4cff-fb824b77f02e/15UMGIM59587.rgb.jpg/60x60bb.jpg"), 
         artworkUrl100: URL(string: "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/f2/98/fb/f298fb48-1e0e-6ad4-4cff-fb824b77f02e/15UMGIM59587.rgb.jpg/100x100bb.jpg"), 
