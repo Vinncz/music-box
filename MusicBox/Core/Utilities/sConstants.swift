@@ -5,7 +5,10 @@ import Foundation
 struct Constants {
     
     
-    static let region: String = "US"
+    static let REGION: String = "US"
+    
+    
+    static let TIMEOUT: TimeInterval = 8.0
     
     
     struct Sizes {

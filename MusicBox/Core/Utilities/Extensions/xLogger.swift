@@ -14,11 +14,15 @@ extension Logger {
     static let viewCycle = Logger(subsystem: subsystem, category: "viewcycle")
     
     
-    /// Logs network related activities.
+    /// Logs the playback-related activities.
+    static let playback = Logger(subsystem: subsystem, category: "playback")
+    
+    
+    /// Logs network-related activities.
     static let network = Logger(subsystem: subsystem, category: "network")
     
     
-    /// Logs the execution of tests.
-    static let tests = Logger(subsystem: subsystem, category: "tests")
+    /// Logs the caching mechanism.
+    static let cache = Logger(subsystem: subsystem, category: "caches")
     
 }
