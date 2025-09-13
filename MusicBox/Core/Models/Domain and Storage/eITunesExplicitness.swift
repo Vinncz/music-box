@@ -3,7 +3,7 @@ import Foundation
 
 
 /// Content advisory rating of a ``iTunesWrapperType/collection`` or ``iTunesWrapperType/track``.
-enum iTunesExplicitness: String, Codable {
+enum iTunesExplicitness: String, Codable, Sendable {
     
     
     /// Contains explicit material (e.g., strong language, mature themes).
