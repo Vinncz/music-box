@@ -70,6 +70,7 @@ struct iTunesCollectionResponse: Decodable {
 }
 
 
+
 // swiftlint:disable line_length
 extension iTunesCollectionResponse {
     

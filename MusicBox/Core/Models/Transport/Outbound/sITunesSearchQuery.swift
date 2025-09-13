@@ -11,7 +11,7 @@ struct iTunesSearchQuery: Encodable {
     
     
     /// The two-letter country code for the store to search in.
-    var country: String = Constants.region
+    var country: String = Constants.REGION
     
     
     /// The media type to search for.
