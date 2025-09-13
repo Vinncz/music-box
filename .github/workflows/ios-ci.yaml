@@ -1,0 +1,42 @@
+name: "iOS CI Workflow"
+
+on:
+  push:
+    branches:
+      - development
+  pull_request:
+    branches:
+      - main
+
+jobs:
+    build-test:
+        runs-on: macos-15
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            
+            - name: Set up Xcode
+              run: |
+                sudo xcode-select -s /Applications/Xcode_16.4.0.app
+            
+            - name: Cache Carthage dependencies
+              uses: actions/cache@v4
+              with:
+                  path: Carthage
+                  key: ${{ runner.os }}-carthage-${{ hashFiles('**/Cartfile.resolved') }}
+                  restore-keys: ${{ runner.os }}-carthage-
+            
+            - name: Install and Bootstrap Carthage
+              env:
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                brew install carthage
+                carthage bootstrap --platform iOS --use-xcframeworks --cache-builds
+            
+            - name: Test
+              run: |
+                xcodebuild test \
+                  -scheme "MusicBox" \
+                  -sdk iphonesimulator \
+                  -destination 'platform=iOS Simulator,name=iPhone 16' \
+                  -skip-testing:MusicBoxUITests
