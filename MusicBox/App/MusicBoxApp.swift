@@ -1,5 +1,7 @@
+import KTVHTTPCache
 import SwiftUI
 import SwiftData
+import OSLog
 
 
 
@@ -7,39 +9,73 @@ import SwiftData
 struct MusicBoxApp: App {
     
     
-    @Environment(\.scenePhase) private var scenePhase
+    /// Performs critical tasks upon initialization.
+    init() { startKTVHTTPCache() }
     
     
-//    var sharedModelContainer: ModelContainer = {
-//        let schema = Schema([
-//            Item.self,
-//        ])
-//        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-//
-//        do {
-//            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-//        } catch {
-//            fatalError("Could not create ModelContainer: ")
-//        }
-//    }()
-    
+    @State var playbackService = MediaPlaybackService()
+    @State var shouldShowFileImporter = false
     
     var body: some Scene {
-        WindowGroup {
-            EmptyView()
+        WindowGroup { 
+            Text("\(playbackService.state)")
+            
+            Button("Import") {
+                shouldShowFileImporter = true
+            }
+            .fileImporter(isPresented: $shouldShowFileImporter, allowedContentTypes: [.audio]) { result in
+                switch result {
+                case let .success(url):
+                    _ = url.startAccessingSecurityScopedResource()
+                    Task {
+                        try await playbackService.play(url: url)
+                    }
+                case let .failure(error):
+                    print("Error importing \(error)")
+                }
+            }
+            
+            if case .playing = playbackService.state {
+                Button("Pause") {
+                    playbackService.pause()
+                }.buttonStyle(.borderedProminent)
+            } else {
+                Button("Resume") {
+                    playbackService.resume()
+                }.buttonStyle(.borderedProminent)
+            }
+            
+            Button("Stop") {
+                playbackService.stop()
+            }.buttonStyle(.borderedProminent)
         }
-        // .onChange(of: scenePhase) { oldPhase, newPhase in
-        //     switch newPhase {
-        //     case .active:
-        //         print("\(Bundle.main.displayName) is active")
-        //     case .inactive:
-        //         print("\(Bundle.main.displayName) is inactive")
-        //     case .background:
-        //         print("\(Bundle.main.displayName) is in the background")
-        //     @unknown default:
-        //         print("\(Bundle.main.displayName) has entered an unknown state")
-        //     }
-        // }
-//        .modelContainer(sharedModelContainer)
+        .modelContainer(for: [iTunesSong.self], inMemory: false) { startupResult in 
+            if case let .failure(reason) = startupResult {
+                Logger.cache.error("ModelContainer failed to initialize. No metadata will be cached. Error: \(reason)")
+                return
+            }
+            
+            Logger.cache.info("ModelContainer initialized normally.")
+            Task { await AppState.shared.set(swiftDataModelContainerAvailabilityTo: true) }
+        }
     }
+}
+
+
+
+fileprivate extension MusicBoxApp {
+    
+    
+    func startKTVHTTPCache() {
+        do {
+            try KTVHTTPCache.proxyStart()
+            KTVHTTPCache.logSetConsoleLogEnable(true)
+            Logger.network.info("KTVHTTPCache started normally.")
+            Task { await AppState.shared.set(ktvHTTPCacheProxyAvailabilityTo: true) }
+            
+        } catch {
+            Logger.network.error("KTVHTTPCache failed to start. No file caching will be performed. Error: \(error)")
+        }
+    }
+    
 }
