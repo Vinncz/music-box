@@ -11,7 +11,7 @@ import Observation
     
     
     /// Service that provides playback capability.
-    var mediaPlaybackService: MediaPlaybackServicing
+    var mediaPlaybackService: SeekableMediaPlaybackServicing
     
     
     /// Service that provides caching capability.
@@ -26,11 +26,11 @@ import Observation
         let originalUrl = song.previewUrl
         let proxyUrl = await mediaCachingService.proxyURL(for: originalUrl)
         
-        try await mediaPlaybackService.play(url: proxyUrl)
+        await mediaPlaybackService.play(url: proxyUrl)
     }
     
     
-    init(catalogService: CatalogServicing, mediaPlaybackService: MediaPlaybackServicing, mediaCachingService: MediaCacheKTVHTTPCacheService, song: iTunesSong) {
+    init(catalogService: CatalogServicing, mediaPlaybackService: SeekableMediaPlaybackServicing, mediaCachingService: MediaCacheKTVHTTPCacheService, song: iTunesSong) {
         self.catalogService = catalogService
         self.mediaPlaybackService = mediaPlaybackService
         self.mediaCachingService = mediaCachingService
