@@ -176,7 +176,7 @@ extension MediaPlaybackService {
         guard let player, canSeek, let totalRuntime else { return false }
         
         let withinBoundSecond = max(0, min(time, totalRuntime))
-        let targetTime = CMTime(seconds: withinBoundSecond, preferredTimescale: CMTimeScale(totalRuntime))
+        let targetTime = CMTime(seconds: withinBoundSecond, preferredTimescale: Constants.CORE_MEDIA_TIMESCALE)
         
         self.isScrubbing = false
         player.seek(to: targetTime) { [weak self] _ in
@@ -208,9 +208,11 @@ extension MediaPlaybackService {
     func endTimeScrubbing(at time: Double) {
         Logger.playback.info("Ended time scrubbing.")
         
-        self.seek(to: time)
-        ? Logger.playback.info("Seeked to \(time).")
-        : Logger.playback.error("Failed to seek to \(time).")
+        if self.seek(to: time) {
+            Logger.playback.info("Seeked to \(time).")
+        } else {
+            Logger.playback.error("Failed to seek to \(time).")
+        }
     }
     
 }
