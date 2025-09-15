@@ -126,6 +126,7 @@ extension iTunesSong {
         let formatter = DateFormatter()
             formatter.dateStyle = .medium
             formatter.timeStyle = .none
+            formatter.dateFormat = "d MMM yyyy"
         return formatter.string(from: releaseDate)
     }
     
