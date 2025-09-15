@@ -30,7 +30,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:MusicBox.xctestplan">
+            reference = "container:MusicBoxTests.xctestplan">
          </TestPlanReference>
       </TestPlans>
       <Testables>
