@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		208417F92E78272F004809EB /* SeekBar in Frameworks */ = {isa = PBXBuildFile; productRef = 208417F82E78272F004809EB /* SeekBar */; };
+		208417FA2E782A89004809EB /* SeekBar in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 208417F82E78272F004809EB /* SeekBar */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		208D2EC72E75A32E00752539 /* KTVHTTPCache.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 208D2EC32E75A31300752539 /* KTVHTTPCache.xcframework */; };
 		208D2EC82E75A32E00752539 /* KTVHTTPCache.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 208D2EC32E75A31300752539 /* KTVHTTPCache.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -35,6 +37,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				208417FA2E782A89004809EB /* SeekBar in Embed Frameworks */,
 				208D2EC82E75A32E00752539 /* KTVHTTPCache.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -74,6 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				208417F92E78272F004809EB /* SeekBar in Frameworks */,
 				208D2EC72E75A32E00752539 /* KTVHTTPCache.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -147,6 +151,7 @@
 			);
 			name = MusicBox;
 			packageProductDependencies = (
+				208417F82E78272F004809EB /* SeekBar */,
 			);
 			productName = MusicBox;
 			productReference = 201334552E72A06D00CB8A88 /* MusicBox.app */;
@@ -231,6 +236,9 @@
 			);
 			mainGroup = 2013344C2E72A06D00CB8A88;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				208417F72E78272F004809EB /* XCRemoteSwiftPackageReference "SeekBar" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 201334562E72A06D00CB8A88 /* Products */;
 			projectDirPath = "";
@@ -729,6 +737,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		208417F72E78272F004809EB /* XCRemoteSwiftPackageReference "SeekBar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kim-minseong/SeekBar.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		208417F82E78272F004809EB /* SeekBar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 208417F72E78272F004809EB /* XCRemoteSwiftPackageReference "SeekBar" */;
+			productName = SeekBar;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2013344D2E72A06D00CB8A88 /* Project object */;
 }

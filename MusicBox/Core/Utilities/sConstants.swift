@@ -17,6 +17,15 @@ struct Constants {
     static let DEBOUNCE_COOLDOWN: TimeInterval = 0.5
     
     
+    static let CORE_MEDIA_TIMESCALE: Int32 = 600
+    
+    
+    static let PLAYBACK_SEEK_TOLERANCE_BEFORE: Double = 2
+    
+    
+    static let PLAYBACK_SEEK_TOLERANCE_AFTER: Double = 0
+    
+    
     struct Sizes {
         
         

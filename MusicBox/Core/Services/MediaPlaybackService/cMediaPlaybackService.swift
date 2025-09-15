@@ -10,74 +10,113 @@ import OSLog
 /// 
 /// Placed on the main actor so every AVPlayer interactions occur on the main thread.
 @MainActor @Observable 
-final class MediaPlaybackService: MediaPlaybackServicing {
+final class MediaPlaybackService: SeekableMediaPlaybackServicing {
     
     
-    /// Source of truth for media playback state.
+    // MARK: -- Publicly Available Information
+    
+    /// The state of the playback.
     private(set) var state: MediaPlaybackState = .idle
     
+    
+    /// Current playback position of the loaded media, in seconds.
+    private(set) var currentTime: Double?
+    
+    
+    /// Total duration of the loaded media.
+    private(set) var totalRuntime: Double?
+    
+    
+    
+    // MARK: -- Internal Implementation
     
     /// The underlying AVPlayer that does the media playback.
     private var player: AVPlayer?
     
     
     /// Observes the playability of the media pointed to by the url.
-    private var mediaStatusObserver: NSKeyValueObservation?
+    private var playabilityObserver: NSKeyValueObservation?
     
     
-    /// Observes the playback of the player.
+    /// Observes whether the playback is hindered due to buffering.
     private var bufferObserver: NSKeyValueObservation?
     
     
-    /// 'Receipt' for subscription to `NotificationCenter`.
-    private var didFinishObserver: NSObjectProtocol?
+    /// Observes whether the media has finished playing.
+    private var mediaFinishedPlayingObserver: NSObjectProtocol?
     
     
-    /// Asynchronously loads and plays media from the given URL.
-    func play(url: URL) async throws {
+    /// Observes for the position of the playback pointer against the played media. 
+    private var playbackTimeObserver: Any?
+    
+    
+    /// Whether the seekbar is currently being scrubbed.
+    private var isScrubbing: Bool = false
+    
+}
+
+
+
+/// Base capability methods extension.
+extension MediaPlaybackService {
+    
+    
+    /// Plays the media pointed to by the given url.
+    func play(url: URL) async -> Bool {
         
         // 1) New media require clean service slate.
-        reset()
+        self.reset()
         
         // 2) Load or fail the media early.
-        state = .loading(url)
+        self.state = .loading(url)
         Logger.playback.info("Attempting to load media from \(url)")
         
         let playerItem = AVPlayerItem(url: url)
         let player = AVPlayer(playerItem: playerItem)
         self.player = player
         
-        // 3) Make sure the player can play it.
-        try await awaitStatus(for: playerItem)
-        
-        // 4) Instruct the player to play, and what should happen after it is done.
-        setupObservers(for: player, url: url)
-        self.player?.play()
-        self.state = .playing(url)
-        
-        Logger.playback.info("Started media playback for \(url)")
+        do {
+            // 3a) Make sure the player can play it.
+            try await awaitStatus(for: playerItem)
+            
+            // 4) Instruct the player to play, and what should happen after it is done.
+            self.setupObservers(for: player, url: url)
+            self.player?.play()
+            self.state = .playing(url)
+            
+            Logger.playback.info("Started media playback for \(url)")
+            return true
+            
+        } catch {
+            // 3b) Revert the playback state.
+            self.state = .idle
+            
+            Logger.playback.error("Failed to load media from \(url): \(error)")
+            return false
+        }
     }
     
     
-    /// Temporarily halts the playback of the ``loadedMediaUrl``.
-    func pause() {
+    /// Pauses the playback of the currently-played media.
+    func pause() -> Bool {
         guard case let .playing(url) = state else {
-            return
+            return false
         }
         
         self.player?.pause()
         self.state = .paused(url)
         
         Logger.playback.info("Paused media playback for \(url)")
+        return true
     }
     
     
-    /// Resumes the playback of the ``loadedMediaUrl``.
+    /// Resumes the playback of the currently-paused media.
     /// 
     /// - Note:
     ///   If the current media has finished playing, 
-    ///   invoking ``resume`` will replay the media from the beginning.
-    func resume() {
+    ///   invoking ``resume()`` will replay the media from the beginning.
+    func resume() -> Bool {
         switch state {
         case let .paused(url):
             self.player?.play()
@@ -96,19 +135,82 @@ final class MediaPlaybackService: MediaPlaybackServicing {
         
         default:
             Logger.playback.warning("No media loaded. Unable to resume.")
+            return false
         }
+        
+        return true
     }
     
     
-    /// Ends the playback and dereferences the previously-running AVPlayer.
-    func stop() {
+    /// Stops the playback of the loaded media.
+    func stop() -> Bool {
         guard state != .idle else {
             Logger.playback.warning("No media loaded. Unable to stop.")
-            return
+            return false
         }
         
         reset()
         Logger.playback.warning("Stopped media playback.")
+        return true
+    }
+    
+}
+
+
+
+/// Seekable capability methods extension.
+extension MediaPlaybackService {
+    
+    
+    /// Whether a media is loaded and ready for transport control.
+    var canSeek: Bool {
+        switch state {
+            case .playing, .paused, .finished, .buffering: return true
+            default: return false
+        }
+    }
+    
+    
+    /// Skips part of, or return to some point on the loaded media.
+    func seek(to time: TimeInterval) -> Bool {
+        guard let player, canSeek, let totalRuntime else { return false }
+        
+        let withinBoundSecond = max(0, min(time, totalRuntime))
+        let targetTime = CMTime(seconds: withinBoundSecond, preferredTimescale: CMTimeScale(totalRuntime))
+        
+        self.isScrubbing = false
+        player.seek(to: targetTime) { [weak self] _ in
+            Task { @MainActor in 
+                self?.currentTime = withinBoundSecond 
+            }
+        }
+        
+        return true
+    }
+    
+    
+    /// Suspends automatic runtime updates to prevent slider jitter.
+    func beginTimeScrubbing() {
+        self.isScrubbing = true
+        Logger.playback.info("Started time scrubbing.")
+    }
+    
+    
+    /// Updates the current time displayed, without seeking the media.
+    /// Used during active scrubbing.
+    func updateTimeScrubbing(to time: Double) {
+        guard isScrubbing, let totalRuntime else { return }
+        self.currentTime = max(0, min(time, totalRuntime))
+    }
+    
+    
+    /// Ends time scrubbing and commit to the specified position.
+    func endTimeScrubbing(at time: Double) {
+        Logger.playback.info("Ended time scrubbing.")
+        
+        self.seek(to: time)
+        ? Logger.playback.info("Seeked to \(time).")
+        : Logger.playback.error("Failed to seek to \(time).")
     }
     
 }
@@ -123,15 +225,22 @@ fileprivate extension MediaPlaybackService {
     /// 
     /// Use this `reset` method to clear states between one media playback from the other.
     func reset() {
-        player?.pause()
-        player = nil
+        if let player, let playbackTimeObserver { player.removeTimeObserver(playbackTimeObserver) }
+        self.playbackTimeObserver = nil
         
-        self.mediaStatusObserver?.invalidate()
-        self.mediaStatusObserver = nil
+        self.currentTime = 0
+        self.totalRuntime = 0
+        self.isScrubbing = false
         
-        if let didFinishObserver {
-            NotificationCenter.default.removeObserver(didFinishObserver)
-            self.didFinishObserver = nil
+        self.player?.pause()
+        self.player = nil
+        
+        self.playabilityObserver?.invalidate()
+        self.playabilityObserver = nil
+        
+        if let mediaFinishedPlayingObserver {
+            NotificationCenter.default.removeObserver(mediaFinishedPlayingObserver)
+            self.mediaFinishedPlayingObserver = nil
         }
         
         state = .idle
@@ -140,9 +249,6 @@ fileprivate extension MediaPlaybackService {
     
     /// Determines whether media pointed in the URL can be played, 
     /// should it not have been resolved already.
-    /// 
-    /// ABSTRACT: 
-    /// A KVO-observation in Swift 6's async world, with a timeout.
     func awaitStatus(for playerItem: AVPlayerItem) async throws {
         if case .readyToPlay = playerItem.status { return }
         if case .failed = playerItem.status { throw MediaPlaybackError.itemFailedToLoad(playerItem.error) }
@@ -172,10 +278,12 @@ fileprivate extension MediaPlaybackService {
                     // Observe status changes
                     Task { @MainActor in 
                         self.set(mediaStatusObserver: playerItem.observe(\.status, options: .new) { [self] item, _ in
-                            Task { @MainActor in self.mediaStatusObserver?.invalidate() }
+                            Task { @MainActor in self.playabilityObserver?.invalidate() }
                             
                             switch item.status {
                             case .readyToPlay:
+                                let duration = CMTimeGetSeconds(playerItem.duration)
+                                Task { @MainActor in self.totalRuntime = duration }
                                 continuation.resume()
                             case .failed:
                                 Task { @MainActor in
@@ -208,23 +316,21 @@ fileprivate extension MediaPlaybackService {
     func setupObservers(for player: AVPlayer, url: URL) {
         self.bufferObserver = player.observe(\.timeControlStatus, options: .new) { [weak self] player, _ in
             guard let self = self else { return }
-            
             switch player.timeControlStatus {
-            case .paused:
-                break
-            
             case .playing:
-                Task { @MainActor in self.set(state: .playing(url)) }
-                    
+                Task { @MainActor in 
+                    self.set(state: .playing(url)) 
+                }
             case .waitingToPlayAtSpecifiedRate:
-                Task { @MainActor in self.set(state: .buffering(url)) }
-                    
-            @unknown default:
+                Task { @MainActor in 
+                    self.set(state: .buffering(url)) 
+                }
+            default:
                 break
             }
         }
         
-        self.didFinishObserver = NotificationCenter.default.addObserver(
+        self.mediaFinishedPlayingObserver = NotificationCenter.default.addObserver(
             forName: AVPlayerItem.didPlayToEndTimeNotification, 
             object: player.currentItem, 
             queue: .main
@@ -234,12 +340,20 @@ fileprivate extension MediaPlaybackService {
             Logger.playback.info("Media has finished playing.")
             Task { @MainActor in self.state = .finished(url) }
         }
+        
+        let updateInterval: CMTime = CMTime(seconds: 0.5, preferredTimescale: 10)
+        self.playbackTimeObserver = player.addPeriodicTimeObserver(forInterval: updateInterval, queue: .main) { [weak self] time in
+            Task { @MainActor in 
+                guard let self, !self.isScrubbing else { return }
+                self.currentTime = CMTimeGetSeconds(time)
+            }
+        }
     }
     
     
     /// Enables outside mutation on `mediaStatusObserver`.
     func set(mediaStatusObserver: NSKeyValueObservation) {
-        self.mediaStatusObserver = mediaStatusObserver
+        self.playabilityObserver = mediaStatusObserver
     }
     
     
