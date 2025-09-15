@@ -17,6 +17,7 @@ struct MediaCacheServiceTests {
     
     @Test("Service is able to start. DISABLE `wakeServices` on `MusicBoxApp.swift` to pass.")
     func testStartup() async throws {
+        KTVHTTPCache.proxyStop()
         let mediaCacheService = MediaCacheKTVHTTPCacheService()
         try #require(await mediaCacheService.start())
         
@@ -26,6 +27,7 @@ struct MediaCacheServiceTests {
     
     @Test("URLSession's data(for:) are cached")
     func testCacheFunctionality() async throws {
+        KTVHTTPCache.proxyStop()
         let service = MediaCacheKTVHTTPCacheService()
         try #require(await service.start())
         
@@ -56,6 +58,7 @@ struct MediaCacheServiceTests {
     
     @Test("Partial cache hits and preloading are handled correctly")
     func testPartialCacheHits() async throws {
+        KTVHTTPCache.proxyStop()
         let service = MediaCacheKTVHTTPCacheService()
         try #require(await service.start())
         
@@ -94,6 +97,7 @@ struct MediaCacheServiceTests {
     
     @Test("Canceling preloads work correctly")
     func testCancelPreloading() async throws {
+        KTVHTTPCache.proxyStop()
         let service = MediaCacheKTVHTTPCacheService()
         try #require(await service.start())
         

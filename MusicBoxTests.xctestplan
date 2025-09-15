@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "CF72325C-0ED0-4C9D-A591-186DFA3816AE",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:MusicBox.xcodeproj",
+      "identifier" : "201334542E72A06D00CB8A88",
+      "name" : "MusicBox"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:MusicBox.xcodeproj",
+        "identifier" : "201334642E72A06F00CB8A88",
+        "name" : "MusicBoxTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -49,6 +49,7 @@
 		201334552E72A06D00CB8A88 /* MusicBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MusicBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		201334652E72A06F00CB8A88 /* MusicBoxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MusicBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2013346F2E72A06F00CB8A88 /* MusicBoxUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MusicBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2039C0042E782F5B00796C7A /* MusicBoxTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MusicBoxTests.xctestplan; sourceTree = "<group>"; };
 		2060D0E52E74513000C0C159 /* KTVHTTPCache.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = KTVHTTPCache.framework; path = Carthage/Build/iOS/KTVHTTPCache.framework; sourceTree = "<group>"; };
 		2060D0F02E7452B000C0C159 /* KTVHTTPCache.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = KTVHTTPCache.framework; path = Carthage/Build/iOS/KTVHTTPCache.framework; sourceTree = "<group>"; };
 		208D2EC32E75A31300752539 /* KTVHTTPCache.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = KTVHTTPCache.xcframework; path = Carthage/Build/KTVHTTPCache.xcframework; sourceTree = "<group>"; };
@@ -102,6 +103,7 @@
 		2013344C2E72A06D00CB8A88 = {
 			isa = PBXGroup;
 			children = (
+				2039C0042E782F5B00796C7A /* MusicBoxTests.xctestplan */,
 				2060D0F02E7452B000C0C159 /* KTVHTTPCache.framework */,
 				201334572E72A06E00CB8A88 /* MusicBox */,
 				201334682E72A06F00CB8A88 /* MusicBoxTests */,
