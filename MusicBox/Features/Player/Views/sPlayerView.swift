@@ -29,7 +29,7 @@ struct PlayerView: View {
             .scrollIndicators(scaleFactor < 1 ? .hidden : .automatic, axes: .vertical)
             .onScrollGeometryChange(for: CGFloat.self) { geometry in
                 geometry.contentOffset.y
-            } action: { oldValue, newValue in
+            } action: { _, newValue in
                 if newValue >= 0 {
                     scaleFactor = 1
                     cornerRadius = 16

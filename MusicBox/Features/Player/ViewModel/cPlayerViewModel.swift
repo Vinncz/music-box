@@ -30,7 +30,8 @@ import Observation
     }
     
     
-    init(catalogService: CatalogServicing, mediaPlaybackService: SeekableMediaPlaybackServicing, mediaCachingService: MediaCacheKTVHTTPCacheService, song: iTunesSong) {
+    init(catalogService: CatalogServicing, mediaPlaybackService: SeekableMediaPlaybackServicing, 
+         mediaCachingService: MediaCacheKTVHTTPCacheService, song: iTunesSong) {
         self.catalogService = catalogService
         self.mediaPlaybackService = mediaPlaybackService
         self.mediaCachingService = mediaCachingService

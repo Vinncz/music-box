@@ -165,8 +165,8 @@ extension MediaPlaybackService {
     /// Whether a media is loaded and ready for transport control.
     var canSeek: Bool {
         switch state {
-            case .playing, .paused, .finished, .buffering: return true
-            default: return false
+        case .playing, .paused, .finished, .buffering: return true
+        default: return false
         }
     }
     
@@ -344,7 +344,8 @@ fileprivate extension MediaPlaybackService {
         }
         
         let updateInterval: CMTime = CMTime(seconds: 0.5, preferredTimescale: 10)
-        self.playbackTimeObserver = player.addPeriodicTimeObserver(forInterval: updateInterval, queue: .main) { [weak self] time in
+        self.playbackTimeObserver = player.addPeriodicTimeObserver(forInterval: updateInterval, queue: .main) { 
+            [weak self] time in
             Task { @MainActor in 
                 guard let self, !self.isScrubbing else { return }
                 self.currentTime = CMTimeGetSeconds(time)

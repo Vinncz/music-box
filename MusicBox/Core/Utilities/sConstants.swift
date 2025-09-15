@@ -2,6 +2,7 @@ import Foundation
 
 
 
+// swiftlint:disable identifier_name
 struct Constants {
     
     
@@ -37,3 +38,4 @@ struct Constants {
     }
     
 }
+// swiftlint:enable identifier_name
