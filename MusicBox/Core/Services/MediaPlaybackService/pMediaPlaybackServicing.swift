@@ -7,22 +7,36 @@ import Foundation
 @MainActor protocol MediaPlaybackServicing {
     
     
+    // MARK: -- Informations
+    
+    /// The state of the playback.
     var state: MediaPlaybackState { get }
     
     
+    /// Current playback position of the loaded media, in seconds.
+    var currentTime: Double? { get }
+    
+    
+    /// Total duration of the loaded media.
+    var totalRuntime: Double? { get }
+    
+    
+    
+    // MARK: -- Controls
+    
     /// Plays the media pointed to by the given url.
-    func play(url: URL) async throws
+    @discardableResult func play(url: URL) async -> Bool
     
     
     /// Pauses the playback of the currently-played media.
-    func pause() async
+    @discardableResult func pause() async -> Bool
     
     
     /// Resumes the playback of the currently-paused media.
-    func resume() async
+    @discardableResult func resume() async -> Bool
     
     
     /// Stops the playback of the loaded media.
-    func stop() async
+    @discardableResult func stop() async -> Bool
     
 }

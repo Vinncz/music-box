@@ -1,3 +1,4 @@
+import SeekBar
 import SwiftUI
 
 
@@ -8,11 +9,15 @@ struct PlayerView: View {
     @State var viewModel: PlayerViewModel
     
     
+    @State var isSeeking: Bool = false
+    
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .center, spacing: Constants.Sizes.baseSpacing * 4) {
                 artwork()
                 titleAndArtists()
+                seekbar()
                 controlButton()
             }
             .padding()
@@ -24,7 +29,7 @@ struct PlayerView: View {
             .scrollIndicators(scaleFactor < 1 ? .hidden : .automatic, axes: .vertical)
             .onScrollGeometryChange(for: CGFloat.self) { geometry in
                 geometry.contentOffset.y
-            } action: { oldValue, newValue in
+            } action: { _, newValue in
                 if newValue >= 0 {
                     scaleFactor = 1
                     cornerRadius = 16
@@ -72,6 +77,37 @@ fileprivate extension PlayerView {
                 .font(.callout)
                 .multilineTextAlignment(.center)
         }
+    }
+    
+    
+    @ViewBuilder func seekbar() -> some View {
+        SeekBar(
+            value: Binding(
+                get: { viewModel.mediaPlaybackService.currentTime ?? 0 },
+                set: { time in viewModel.mediaPlaybackService.updateTimeScrubbing(to: time) }
+            ),
+            in: 0...(viewModel.mediaPlaybackService.totalRuntime ?? 0),
+            onEditingChanged: { isEditing in 
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    self.isSeeking = isEditing
+                }
+                
+                if isEditing {
+                    viewModel.mediaPlaybackService.beginTimeScrubbing()
+                } else {
+                    viewModel.mediaPlaybackService.endTimeScrubbing(at: viewModel.mediaPlaybackService.currentTime ?? 0)
+                }
+            }
+        )
+        .seekBarDisplay(with: .trackOnly)
+        .trackColors(
+            activeTrackColor: isSeeking ? .primary : .primary.opacity(0.8),
+            inactiveTrackColor: .secondary
+        )
+        .trackDimensions(
+            trackHeight: isSeeking ? 16 : 8,
+            inactiveTrackCornerRadius: 16
+        )
     }
     
     

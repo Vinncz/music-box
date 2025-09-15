@@ -5,7 +5,6 @@ import OSLog
 
 
 
-@Suite(.serialized)
 struct CatalogServiceTests {
     
     

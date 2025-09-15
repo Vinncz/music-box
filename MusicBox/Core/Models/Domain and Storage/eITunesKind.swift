@@ -2,7 +2,7 @@ import Foundation
 
 
 
-/// Represents the nature of an ``iTunesTrack``.
+/// Represents the nature of an `iTunesTrack`.
 enum iTunesKind: String, Decodable {
     
     
